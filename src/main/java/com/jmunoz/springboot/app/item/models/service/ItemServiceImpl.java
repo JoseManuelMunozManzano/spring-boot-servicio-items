@@ -20,13 +20,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> findAll() {
-        // En la url se informa el puerto y en endpoint del microservicio que queremos consurmir.
-        // No se puede informar un tipo List en getForObject, pero si un arreglo que luego se transforma a List.
-        //
-        // PROBLEMA: MUY ACOPLADO AL NOMBRE DE LA MÁQUINA Y AL PUERTO
-        // Para que sea escalable esto debe ser TRANSPARENTE
-        // Esto lo veremos luego con EUREKA y SPRING CLOUD
-        List<Producto> productos = Arrays.asList(clienteRest.getForObject("http://localhost:8001/listar", Producto[].class));
+        // En la url se informa el nombre del microservicio productos y no se informa el puerto
+        // Es decir, desacoplamos el nombre de la máquina y el puerto
+        List<Producto> productos = Arrays.asList(clienteRest.getForObject("http://servicio-productos/listar", Producto[].class));
         return productos.stream().map(p -> new Item(p, 1)).collect(Collectors.toList());
     }
 
@@ -36,7 +32,7 @@ public class ItemServiceImpl implements ItemService {
         Map<String, String> pathVariables = new HashMap<>();
         pathVariables.put("id", id.toString());
 
-        Producto producto = clienteRest.getForObject("http://localhost:8001/ver/{id}", Producto.class, pathVariables);
+        Producto producto = clienteRest.getForObject("http://servicio-productos/ver/{id}", Producto.class, pathVariables);
 
         return new Item(producto, cantidad);
     }
